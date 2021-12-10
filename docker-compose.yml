@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  cloud-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        pg_host: pg
+    image: cloud-api
+    ports:
+      - 8080:8080
+    links:
+      - pg
+    depends_on:
+      - pg
+
+  pg:
+    image: postgres
+    shm_size: 512m
+    command: postgres -c plan_cache_mode=force_custom_plan
+    environment:
+      - POSTGRES_DB=cloudapi
+      - POSTGRES_USER=cloudapi
+      - POSTGRES_PASSWORD=password
+    ports:
+      - 5432:5432
+    volumes:
+      - pg:/var/lib/postgresql/data
