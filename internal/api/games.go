@@ -1,15 +1,19 @@
 package api
 
 import (
+	"api.cloud.io/internal/db/lvl"
 	"api.cloud.io/internal/db/pg"
 	"api.cloud.io/internal/models"
 	"api.cloud.io/openapi/generated/oapigen"
 	"api.cloud.io/pkg/errors"
+	"api.cloud.io/pkg/security/auth"
+	"api.cloud.io/pkg/security/auth/scopes"
 	"bytes"
 	"encoding/json"
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/julienschmidt/httprouter"
+	uuid "github.com/satori/go.uuid"
 	"github.com/semrush/zenrpc"
 	"io"
 	"math/rand"
@@ -526,3 +530,71 @@ func writeJSON(w io.Writer, body interface{}) {
 }
 
 
+func RegisterUser(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	firstname:=r.URL.Query().Get("firstname")
+	lastname:=r.URL.Query().Get("lastname")
+	usename:=r.URL.Query().Get("username")
+	password:=r.URL.Query().Get("password")
+	if len(firstname)==0 || len(lastname)==0 || len(usename)==0 || len(password)==0{
+		respError(w,errors.ErrInvalidParams(nil))
+		return
+	}
+	user:=models.User{
+		firstname,
+		lastname,
+		usename,
+		password,
+	}
+	oldUser,err:=lvl.GetUser(usename)
+	if oldUser.Username==user.Username{
+		respError(w,errors.ErrInvalidParams(nil))
+		return
+	}
+	if err!=nil && err.Error()!="leveldb: not found"{
+		respError(w,errors.ErrInternal(nil))
+		return
+	}
+	err=lvl.AddUser(user)
+	if err!=nil && err.Error()!="leveldb: not found"{
+		respError(w,errors.ErrInternal(nil))
+		return
+	}
+	now:=time.Now()
+	token := models.Session{
+		ID:             uuid.NewV4(),
+		OwnerID:        uuid.NewV4(),
+		Username:       usename,
+		OwnerType:      "User",
+		IssuedAt:       now,
+		ExpirationTime: now.Add(auth.RefreshTokenLifeTime),
+		Scopes: []string{
+			scopes.User,
+		},
+		ApplicantIP: r.Header.Get("X-Forwarded-For"),
+		UserAgent:   r.UserAgent(),
+	}
+	token.Secret, err = auth.GetSecret(token.ID, token.OwnerID,token.Username, token.IssuedAt, token.ApplicantIP, token.UserAgent)
+	if err!=nil{
+		respError(w,errors.ErrInternal(nil))
+		return
+	}
+	accessToken := &auth.Token{
+		ID:             token.ID,
+		Subject:        token.OwnerID,
+		SubjectType:    token.OwnerType,
+		IssuedAt:       now.Unix(),
+		ExpirationTime: now.Add(auth.AccessTokenLifeTime).Unix(),
+		Scopes:         token.Scopes,
+	}
+	accToken, err := auth.NewAccess(token.Secret, accessToken)
+	if err!=nil{
+		respError(w,errors.ErrInternal(nil))
+		return
+	}
+	res := &oapigen.Session{
+		TokenType: accToken.TokenType,
+		AccessToken: accToken.AccessToken,
+		RefreshToken: accToken.RefreshToken,
+	}
+	respJSON(w,res)
+}

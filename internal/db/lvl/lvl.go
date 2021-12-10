@@ -7,7 +7,7 @@ import (
 import "github.com/syndtr/goleveldb/leveldb"
 
 func AddUser(user models.User) error{
-	db, err := leveldb.OpenFile("./lvldb/users", nil)
+	db, err := leveldb.OpenFile("./lvldb/users",nil )
 	if err!=nil{
 		return err
 	}

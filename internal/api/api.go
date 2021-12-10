@@ -60,7 +60,7 @@ func InitHandler() {
 	addMeasured(router,http.MethodGet, "/v1/games/sell/publisher", GetTotalSellByPublishere)
 	addMeasured(router,http.MethodGet, "/v1/games/sell/year", GetTotalSellByYear)
 	addMeasured(router,http.MethodGet, "/v1/games/sell/name", GetTotalSellByName)
-	///
+	addMeasured(router,http.MethodGet, "/v1/user/register", RegisterUser)
 
 
 	router.PanicHandler = panicHandler

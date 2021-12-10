@@ -11,12 +11,13 @@ import (
 )
 
 // GetSecret returns refresh token secret based on the following information.
-func GetSecret(id uuid.UUID, ownerID uuid.UUID, issuedAt time.Time, applicantIP, userAgent string) (string, error) {
+func GetSecret(id uuid.UUID, ownerID uuid.UUID,username string, issuedAt time.Time, applicantIP, userAgent string) (string, error) {
 	hash := sha256.New()
 
 	// SHA256(ID + OwnerID + IssuedAt + ApplicantIP + UserAgent + 32 random bytes)
 	hash.Write(id.Bytes())
 	hash.Write(ownerID.Bytes())
+	hash.Write([]byte(username))
 	issuedAtBytes, _ := issuedAt.MarshalBinary()
 	hash.Write(issuedAtBytes)
 	hash.Write([]byte(applicantIP))
