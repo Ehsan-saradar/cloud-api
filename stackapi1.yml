@@ -1,0 +1,28 @@
+version: '3.4'
+services:
+  mainservice:
+    build:
+      context: .
+      dockerfile: main-service/Dockerfile
+        deploy:
+          placement:
+            constraint:[node.role==manager]
+          environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=https://+:443;http://+:80
+          ports:
+            - "80"
+            - "443"
+  dbusers:
+    build:
+      context: .
+      dockerfile: analysis-services/Dockerfile
+        deploy:
+          placement:
+            replicas:2
+        environment:
+          - ASPNETCORE_ENVIRONMENT=Development
+          - ASPNETCORE_URLS=https://+:443;http://+:80
+          ports:
+            - "80"
+            - "443"

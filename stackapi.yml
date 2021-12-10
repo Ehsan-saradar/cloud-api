@@ -1,0 +1,26 @@
+version: '3.2'
+services:
+  visualizer:
+    image: dockersamples/visualizer
+    container_name: visual
+    deploy:
+      placement:
+        constraints:[node.role == manager]
+    volumes:
+      -/var/run/docker.sock:/var/run/docker.sock:ro
+      ports:
+        - "8001:8001"
+  central:
+    image: ghazals1121/swarm_phase2
+    container_name: central
+    deploy:
+      replicas: 2
+    ports:
+      - "8000:8000"
+  Analyse:
+    image: ghazals1121/swarm_phase3
+    continer_name: Analyse
+    deploy:
+      repicas: 2
+    ports:
+      - "8002:8002"
