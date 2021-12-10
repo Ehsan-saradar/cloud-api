@@ -4,31 +4,37 @@ services:
   main-service:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: main-services/Dockerfile
       args:
-        pg_host: pg
-    image: cloud-api
+        pg_host: pgdbgames
+        pg_host1: pgdbusers
+    image: main-api
     ports:
       - 8080:8080
     links:
-      - pg
+      - pgdbgames
+      - pgdbusers
     depends_on:
-      - pg
+      - pgdbgames
+      - pgdbusers
 
   analysis-service:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: analysis-services/Dockerfile
       args:
         pg_host: pg
-    image: cloud-api
+    image: analysis-api
     ports:
       - 8090:8090
     links:
-      - pg
+      - pgdbgames
+      - pgdbusers
     depends_on:
-      - pg
-  pg:
+      - pgdbgames
+      - pgdbusers
+
+  pgdbgames:
     image: postgres
     shm_size: 512m
     command: postgres -c plan_cache_mode=force_custom_plan
@@ -39,7 +45,21 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - pg:/var/lib/postgresql/data
+      - pg:/var/lib/postgresql1/data
+
+  pgdbusers:
+    image: postgres
+    shm_size: 512m
+    command: postgres -c plan_cache_mode=force_custom_plan
+    environment:
+      - POSTGRES_DB=cloudapi
+      - POSTGRES_USER=cloudapi
+      - POSTGRES_PASSWORD=password
+    ports:
+      - 5433:5432
+    volumes:
+      - pg1:/var/lib/postgresql2/data
 
 volumes:
   pg:
+  pg1:

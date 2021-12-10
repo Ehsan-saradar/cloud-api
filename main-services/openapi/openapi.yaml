@@ -1,0 +1,487 @@
+openapi: "3.0.3"
+info:
+  title: cloud API Service
+  version: "v0.1.0"
+security:
+  - BearerAuth: []
+servers:
+  - url: http://127.0.0.1:8080/
+paths:
+  /v1/game/top/rank:
+    get:
+      summary: Get top games
+      description: Get top games based on rank
+      tags:
+        - Games
+      operationId: GetTopGames
+      parameters:
+        - name: pagination
+          in: query
+          schema:
+            $ref: "#/components/schemas/Pagination"
+          style: form
+          explode: true
+          x-oapi-codegen-extra-tags:
+            valid: pagination
+      responses:
+        "200":
+          description: Returns games
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageMeta"
+                  - properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Game"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /v1/game/search:
+    get:
+      summary: search in games
+      description: search game based on name
+      tags:
+        - Games
+      operationId: SearchGamesByName
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns games
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageMeta"
+                  - properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Game"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /v1/game/top/platform:
+    get:
+      summary: get top games by platform
+      description: get top games in each platform
+      tags:
+        - Games
+      operationId: GetTopGamesByPlatform
+      parameters:
+        - name: count
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Returns games
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageMeta"
+                  - properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Game"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /v1/game/top/year:
+    get:
+      summary: get top games by year
+      description: get top games in each year
+      tags:
+        - Games
+      operationId: GetTopGamesByYear
+      parameters:
+        - name: count
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Returns games
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageMeta"
+                  - properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Game"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /v1/game/top/genre:
+    get:
+      summary: get top games by genre
+      description: get top games in each genre
+      tags:
+        - Games
+      operationId: GetTopGamesByGenre
+      parameters:
+        - name: count
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Returns games
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageMeta"
+                  - properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Game"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /v1/game/top/sell:
+    get:
+      summary: get most selled games by platform
+      description: get most selled games by platform
+      tags:
+        - Games
+      operationId: GetMostSeledGamesByPlatform
+      parameters:
+        - name: platform
+          in: query
+          schema:
+            type: string
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Returns games
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageMeta"
+                  - properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Game"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /v1/game/search/sell:
+    get:
+      summary: get games which sold in EU more than US
+      description: get games which sold in EU more than US
+      tags:
+        - Games
+      operationId: SearchGamesBySold
+      parameters:
+        - name: pagination
+          in: query
+          schema:
+            $ref: "#/components/schemas/Pagination"
+          style: form
+          explode: true
+          x-oapi-codegen-extra-tags:
+            valid: pagination
+      responses:
+        "200":
+          description: Returns games
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageMeta"
+                  - properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Game"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /v1/games/sell/genre:
+    get:
+      summary: get total sell of each game by genre
+      description:  get total sell of each game by genre
+      tags:
+        - Games
+      operationId: GetTotalSellByGenre
+      parameters:
+        - name: start
+          in: query
+          schema:
+            type: integer
+        - name: end
+          in: query
+          schema:
+            type: integer
+        - name: output
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns games
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageMeta"
+                  - properties:
+                      items:
+                        type: array
+                        items:
+                          type: integer
+  /v1/games/sell/publisher:
+    get:
+      summary: get total sell of each game by publisher
+      description: get total sell of each game by publisher
+      tags:
+        - Games
+      security:
+        - { }
+      operationId: GetTotalSellByPublisher
+      parameters:
+        - name: start
+          in: query
+          schema:
+            type: integer
+        - name: end
+          in: query
+          schema:
+            type: integer
+        - name: publisher1
+          in: query
+          schema:
+            type: string
+        - name: publisher2
+          in: query
+          schema:
+            type: string
+        - name: output
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns games
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageMeta"
+                  - properties:
+                      items:
+                        type: array
+                        items:
+                          type: integer
+  /v1/games/sell/year:
+    get:
+      summary: get total sell of all game by year
+      description: get total sell of all game by year
+      tags:
+        - Games
+      operationId: GetTotalSellByYears
+      parameters:
+        - name: start
+          in: query
+          schema:
+            type: integer
+        - name: end
+          in: query
+          schema:
+            type: integer
+        - name: output
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns games
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageMeta"
+                  - properties:
+                      items:
+                        type: array
+                        items:
+                          type: integer
+  /v1/games/sell/name:
+    get:
+      summary: get total sell of each game by name
+      description: get total sell of each game by name
+      tags:
+        - Games
+      operationId: GetTotalSellByName
+      parameters:
+        - name: game1
+          in: query
+          schema:
+            type: string
+        - name: game2
+          in: query
+          schema:
+            type: string
+        - name: output
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns games
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageMeta"
+                  - properties:
+                      items:
+                        type: array
+                        items:
+                          type: integer
+  /v1/user/register:
+    get:
+      summary: signup a user
+      description: register a new user
+      tags:
+        - Auth
+      security:
+        - { }
+      operationId: Register new user
+      parameters:
+        - name: firstname
+          in: query
+          schema:
+            type: string
+        - name: lastname
+          in: query
+          schema:
+            type: string
+        - name: username
+          in: query
+          schema:
+            type: string
+        - name: password
+          in: query
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Returns the token of the user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+
+components:
+  schemas:
+    Meta:
+      type: object
+      additionalProperties: true
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        meta:
+          $ref: "#/components/schemas/Meta"
+    Pagination:
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: int64
+          minimum: 0
+          default: 0
+          description: The starting position of page
+        limit:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 50
+          default: 50
+          description: Maximum entities to return
+    PageMeta:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int64
+          minimum: 0
+      required:
+        - totalCount
+    Game:
+      type: object
+      properties:
+        rank:
+          type: integer
+        name:
+          type: string
+        platform:
+          type: string
+        year:
+          type: integer
+        genre:
+          type: string
+        publisher:
+          type: string
+        naSale:
+          type: number
+          format: float
+        euSale:
+          type: number
+          format: float
+        jpSale:
+          type: number
+          format: float
+        otherSale:
+          type: number
+          format: float
+        globalSale:
+          type: number
+          format: float
+    Session:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          description: Can be used to acquire new access tokens. Has a long expire time and MUST be stored in a secure place
+        accessToken:
+          type: string
+          description: a JWT token with short lifetime which contains the necessary information about user and it's authorization.
+        tokenType:
+          type: string
+          description: Default type is always 'Bearer'
+      required:
+        - refreshToken
+        - accessToken
+        - tokenType
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    RefreshAuth:
+      type: apiKey
+      in: cookie
+      name: REFRESH_TOKEN
+  responses:
+    ErrorResponse:
+      description: The default error response which returns the necessary information about the problem occurred
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
