@@ -71,6 +71,8 @@ func InitHandler(mainServicePort, analysisServicePort int) {
 	addMeasured(router, http.MethodGet, "/v1/game/top/sell", GetTopSellForYearByPlatform)
 	addMeasured(router, http.MethodGet, "/v1/game/search/sell", GetTopGamesBySell)
 	addMeasured(router, http.MethodGet, "/v1/user/register", RegisterUser)
+	addMeasured(router, http.MethodGet, "/v1/health", Health)
+	addMeasured(router, http.MethodGet, "/v1/logs", Logs)
 
 	router.PanicHandler = panicHandler
 }

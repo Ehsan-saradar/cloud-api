@@ -10,7 +10,7 @@ RUN go mod download
 COPY  . .
 
 # Compile.
-RUN CGO_ENABLED=0 GOOS=linux go build -v -a -installsuffix cgo ./cmd/cloud-api
+RUN CGO_ENABLED=0 GOOS=linux go build -v -a -installsuffix cgo analysis-services/cmd/cloud-api
 
 # Main Image
 FROM busybox

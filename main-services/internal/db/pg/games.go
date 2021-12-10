@@ -268,6 +268,32 @@ func GetGamesByYear(ctx context.Context, limit int, year int) ([]models.Games, e
 	}
 	return games, err
 }
+func GetLogs(ctx context.Context,limit,offset int, level string) ([]string, error) {
+	var err error
+	q := `
+		SELECT
+			*
+		FROM Logs
+		WHERE Level=$1
+		ORDER BY Id
+		LIMIT $2 OFFSET $3
+	`
+	rows, err := Query(ctx, q,level,limit,offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	genres := make([]string, 0)
+	for rows.Next() {
+		var genre string
+		err = rows.Scan(&genre)
+		if err != nil {
+			return nil, err
+		}
+		genres = append(genres, genre)
+	}
+	return genres, err
+}
 
 func GetGenres(ctx context.Context) ([]string, error) {
 	var err error

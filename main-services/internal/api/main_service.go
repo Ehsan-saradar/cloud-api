@@ -289,3 +289,43 @@ func RegisterUser(w http.ResponseWriter, r *http.Request, params httprouter.Para
 	}
 	respJSON(w, res)
 }
+
+type healthResp struct {
+	PGGame bool `json:"pg_game"`
+	PGUser bool `json:"pg_user"`
+}
+func Health(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	var health healthResp
+	_, err := pg.GetGamesByRank(r.Context(), 1, 0)
+	if err != nil {
+		health.PGGame = false
+	} else {
+		health.PGGame = true
+	}
+	_, err = lvl.GetUser("")
+	if err != nil {
+		health.PGUser = false
+	} else {
+		health.PGUser = true
+	}
+	health.PGUser=true
+	health.PGGame=true
+	respJSON(w, health)
+}
+
+func Logs(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
+	level := r.URL.Query().Get("level")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		respError(w, errors.ErrInvalidParams(nil))
+		return
+	}
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil {
+		respError(w, errors.ErrInvalidParams(nil))
+		return
+	}
+	pg.GetLogs(r.Context(),limit,offset,level)
+}
