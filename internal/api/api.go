@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
 	"api.cloud.io/openapi/generated/oapigen"
@@ -18,6 +20,8 @@ import (
 
 // Handler serves the entire API.
 var Handler http.Handler
+var MainServicePort int
+var AnalysisServicePort int
 
 func addMeasured(router *httprouter.Router, method, url string, handler httprouter.Handle) {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
@@ -34,13 +38,22 @@ func addMeasured(router *httprouter.Router, method, url string, handler httprout
 	t := timer.NewTimer("serving" + simplifiedURL)
 	router.Handle(
 		method, url, func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-			m := t.One()
-			handler(w, r, ps)
-			m()
+			hostParts := strings.Split(r.Host, ":")
+			if strings.Index(r.URL.Path, "/v1/games/") == 0 && hostParts[1] == strconv.Itoa(AnalysisServicePort) {
+				m := t.One()
+				handler(w, r, ps)
+				m()
+			} else if strings.Index(r.URL.Path, "/v1/games/") == -1 && hostParts[1] == strconv.Itoa(MainServicePort) {
+				m := t.One()
+				handler(w, r, ps)
+				m()
+			}
 		})
 }
 
-func InitHandler() {
+func InitHandler(mainServicePort, analysisServicePort int) {
+	MainServicePort = mainServicePort
+	AnalysisServicePort = analysisServicePort
 	router := httprouter.New()
 	router.HandleMethodNotAllowed = true
 	router.HandleOPTIONS = true

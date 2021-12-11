@@ -4,7 +4,10 @@ import (
 	"api.cloud.io/internal/models"
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"os"
+	"time"
 )
 
 func initGames(jsondir string) error {
@@ -17,17 +20,19 @@ func initGames(jsondir string) error {
 	}
 	return err
 }
-
+func init(){
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
+}
 func addGames(jsondir string) error {
-	bt, err := ioutil.ReadFile(jsondir + "vgsales.json")
-	if err != nil {
-		return err
-	}
+	log.Info().Msgf("Try to add init games")
+	bt := []byte(getJsondata())
 	games := make([]models.Games, 0)
-	err = json.Unmarshal(bt, &games)
+	err := json.Unmarshal(bt, &games)
 	if err != nil {
+		log.Error().Msgf("Faild to load init games %s",err)
 		return err
 	}
+	log.Info().Msgf("found %d games",len(games))
 	for _, game := range games {
 		err = AddGame(game)
 		if err != nil {

@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  cloud-api:
+  main-service:
     build:
       context: .
       dockerfile: Dockerfile
@@ -15,6 +15,19 @@ services:
     depends_on:
       - pg
 
+  analysis-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        pg_host: pg
+    image: cloud-api
+    ports:
+      - 8090:8090
+    links:
+      - pg
+    depends_on:
+      - pg
   pg:
     image: postgres
     shm_size: 512m
