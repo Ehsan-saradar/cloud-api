@@ -115,7 +115,10 @@ func serveSwagger(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	w.Write(bt)
+	_, er := w.Write(bt)
+	if er != nil {
+		log.Error().Err(er)
+	}
 }
 
 func panicHandler(w http.ResponseWriter, r *http.Request, err interface{}) {

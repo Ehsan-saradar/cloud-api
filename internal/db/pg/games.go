@@ -7,30 +7,30 @@ import (
 	"io/ioutil"
 )
 
-func initGames(jsondir string) error{
-	cnt,err:=getCount(context.Background())
-	if err!=nil{
+func initGames(jsondir string) error {
+	cnt, err := getCount(context.Background())
+	if err != nil {
 		return err
 	}
-	if cnt==0{
-		addGames(jsondir)
+	if cnt == 0 {
+		err = addGames(jsondir)
 	}
-	return nil
+	return err
 }
 
-func addGames(jsondir string)error{
-	bt,err:=ioutil.ReadFile(jsondir+"vgsales.json")
-	if err!=nil{
+func addGames(jsondir string) error {
+	bt, err := ioutil.ReadFile(jsondir + "vgsales.json")
+	if err != nil {
 		return err
 	}
-	games:=make([]models.Games,0)
-	err=json.Unmarshal(bt,&games)
-	if err!=nil{
+	games := make([]models.Games, 0)
+	err = json.Unmarshal(bt, &games)
+	if err != nil {
 		return err
 	}
 	for _, game := range games {
-		err=AddGame(game)
-		if err!=nil{
+		err = AddGame(game)
+		if err != nil {
 			return err
 		}
 	}
@@ -48,26 +48,26 @@ func AddGame(game models.Games) error {
 	return nil
 }
 
-func getCount(ctx context.Context)(int,error){
+func getCount(ctx context.Context) (int, error) {
 	var err error
 	q := `
 		SELECT
 			count(*)
 		FROM games
 	`
-	rows, err := Query(ctx,q)
+	rows, err := Query(ctx, q)
 	if err != nil {
 		return -1, err
 	}
 	defer rows.Close()
-	count:=0
-	if rows.Next(){
-		err=rows.Scan(&count)
+	count := 0
+	if rows.Next() {
+		err = rows.Scan(&count)
 	}
-	return count,err
+	return count, err
 }
 
-func GetGamesByRank(ctx context.Context,limit,offset int)([]models.Games,error){
+func GetGamesByRank(ctx context.Context, limit, offset int) ([]models.Games, error) {
 	var err error
 	q := `
 		SELECT
@@ -86,25 +86,24 @@ func GetGamesByRank(ctx context.Context,limit,offset int)([]models.Games,error){
 		ORDER BY rank
 		LIMIT $1 OFFSET $2
 	`
-	rows, err := Query(ctx,q,limit,offset)
+	rows, err := Query(ctx, q, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	games:=make([]models.Games,0)
-	for; rows.Next();{
+	games := make([]models.Games, 0)
+	for rows.Next() {
 		var game models.Games
-		err=rows.Scan(&game.Rank,&game.Name,&game.Platform,&game.Year,&game.Genre,&game.Publisher,&game.NASale,&game.EUSale,&game.JPSale,&game.OtherSale,&game.GlobalSale)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&game.Rank, &game.Name, &game.Platform, &game.Year, &game.Genre, &game.Publisher, &game.NASale, &game.EUSale, &game.JPSale, &game.OtherSale, &game.GlobalSale)
+		if err != nil {
+			return nil, err
 		}
-		games=append(games,game)
+		games = append(games, game)
 	}
-	return games,err
+	return games, err
 }
 
-
-func GetGamesBySell(ctx context.Context,limit,offset int)([]models.Games,error){
+func GetGamesBySell(ctx context.Context, limit, offset int) ([]models.Games, error) {
 	var err error
 	q := `
 		SELECT
@@ -124,24 +123,24 @@ func GetGamesBySell(ctx context.Context,limit,offset int)([]models.Games,error){
 		ORDER BY rank
 		LIMIT $1 OFFSET $2
 	`
-	rows, err := Query(ctx,q,limit,offset)
+	rows, err := Query(ctx, q, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	games:=make([]models.Games,0)
-	for; rows.Next();{
+	games := make([]models.Games, 0)
+	for rows.Next() {
 		var game models.Games
-		err=rows.Scan(&game.Rank,&game.Name,&game.Platform,&game.Year,&game.Genre,&game.Publisher,&game.NASale,&game.EUSale,&game.JPSale,&game.OtherSale,&game.GlobalSale)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&game.Rank, &game.Name, &game.Platform, &game.Year, &game.Genre, &game.Publisher, &game.NASale, &game.EUSale, &game.JPSale, &game.OtherSale, &game.GlobalSale)
+		if err != nil {
+			return nil, err
 		}
-		games=append(games,game)
+		games = append(games, game)
 	}
-	return games,err
+	return games, err
 }
 
-func GetPlatforms(ctx context.Context)([]string,error){
+func GetPlatforms(ctx context.Context) ([]string, error) {
 	var err error
 	q := `
 		SELECT
@@ -149,24 +148,24 @@ func GetPlatforms(ctx context.Context)([]string,error){
 		FROM games
 		GROUP BY platform
 	`
-	rows, err := Query(ctx,q)
+	rows, err := Query(ctx, q)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	platforms:=make([]string,0)
-	for; rows.Next();{
+	platforms := make([]string, 0)
+	for rows.Next() {
 		var platform string
-		err=rows.Scan(&platform)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&platform)
+		if err != nil {
+			return nil, err
 		}
-		platforms=append(platforms,platform)
+		platforms = append(platforms, platform)
 	}
-	return platforms,err
+	return platforms, err
 }
 
-func GetGamesByPlatform(ctx context.Context,limit int,platform string)([]models.Games,error){
+func GetGamesByPlatform(ctx context.Context, limit int, platform string) ([]models.Games, error) {
 	var err error
 	q := `
 		SELECT
@@ -186,24 +185,24 @@ func GetGamesByPlatform(ctx context.Context,limit int,platform string)([]models.
 		ORDER BY rank
 		LIMIT $2
 	`
-	rows, err := Query(ctx,q,platform,limit)
+	rows, err := Query(ctx, q, platform, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	games:=make([]models.Games,0)
-	for; rows.Next();{
+	games := make([]models.Games, 0)
+	for rows.Next() {
 		var game models.Games
-		err=rows.Scan(&game.Rank,&game.Name,&game.Platform,&game.Year,&game.Genre,&game.Publisher,&game.NASale,&game.EUSale,&game.JPSale,&game.OtherSale,&game.GlobalSale)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&game.Rank, &game.Name, &game.Platform, &game.Year, &game.Genre, &game.Publisher, &game.NASale, &game.EUSale, &game.JPSale, &game.OtherSale, &game.GlobalSale)
+		if err != nil {
+			return nil, err
 		}
-		games=append(games,game)
+		games = append(games, game)
 	}
-	return games,err
+	return games, err
 }
 
-func GetYears(ctx context.Context)([]int,error){
+func GetYears(ctx context.Context) ([]int, error) {
 	var err error
 	q := `
 		SELECT
@@ -211,24 +210,24 @@ func GetYears(ctx context.Context)([]int,error){
 		FROM games
 		GROUP BY year
 	`
-	rows, err := Query(ctx,q)
+	rows, err := Query(ctx, q)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	years:=make([]int,0)
-	for; rows.Next();{
+	years := make([]int, 0)
+	for rows.Next() {
 		var year int
-		err=rows.Scan(&year)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&year)
+		if err != nil {
+			return nil, err
 		}
-		years=append(years,year)
+		years = append(years, year)
 	}
-	return years,err
+	return years, err
 }
 
-func GetGamesByYear(ctx context.Context,limit int,year int)([]models.Games,error){
+func GetGamesByYear(ctx context.Context, limit int, year int) ([]models.Games, error) {
 	var err error
 	q := `
 		SELECT
@@ -248,25 +247,24 @@ func GetGamesByYear(ctx context.Context,limit int,year int)([]models.Games,error
 		ORDER BY rank
 		LIMIT $2
 	`
-	rows, err := Query(ctx,q,year,limit)
+	rows, err := Query(ctx, q, year, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	games:=make([]models.Games,0)
-	for; rows.Next();{
+	games := make([]models.Games, 0)
+	for rows.Next() {
 		var game models.Games
-		err=rows.Scan(&game.Rank,&game.Name,&game.Platform,&game.Year,&game.Genre,&game.Publisher,&game.NASale,&game.EUSale,&game.JPSale,&game.OtherSale,&game.GlobalSale)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&game.Rank, &game.Name, &game.Platform, &game.Year, &game.Genre, &game.Publisher, &game.NASale, &game.EUSale, &game.JPSale, &game.OtherSale, &game.GlobalSale)
+		if err != nil {
+			return nil, err
 		}
-		games=append(games,game)
+		games = append(games, game)
 	}
-	return games,err
+	return games, err
 }
 
-
-func GetGenres(ctx context.Context)([]string,error){
+func GetGenres(ctx context.Context) ([]string, error) {
 	var err error
 	q := `
 		SELECT
@@ -274,24 +272,24 @@ func GetGenres(ctx context.Context)([]string,error){
 		FROM games
 		GROUP BY genre
 	`
-	rows, err := Query(ctx,q)
+	rows, err := Query(ctx, q)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	genres:=make([]string,0)
-	for; rows.Next();{
+	genres := make([]string, 0)
+	for rows.Next() {
 		var genre string
-		err=rows.Scan(&genre)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&genre)
+		if err != nil {
+			return nil, err
 		}
-		genres=append(genres,genre)
+		genres = append(genres, genre)
 	}
-	return genres,err
+	return genres, err
 }
 
-func GetGamesByGenre(ctx context.Context,limit int,genre string)([]models.Games,error){
+func GetGamesByGenre(ctx context.Context, limit int, genre string) ([]models.Games, error) {
 	var err error
 	q := `
 		SELECT
@@ -311,25 +309,24 @@ func GetGamesByGenre(ctx context.Context,limit int,genre string)([]models.Games,
 		ORDER BY rank
 		LIMIT $2
 	`
-	rows, err := Query(ctx,q,genre,limit)
+	rows, err := Query(ctx, q, genre, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	games:=make([]models.Games,0)
-	for; rows.Next();{
+	games := make([]models.Games, 0)
+	for rows.Next() {
 		var game models.Games
-		err=rows.Scan(&game.Rank,&game.Name,&game.Platform,&game.Year,&game.Genre,&game.Publisher,&game.NASale,&game.EUSale,&game.JPSale,&game.OtherSale,&game.GlobalSale)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&game.Rank, &game.Name, &game.Platform, &game.Year, &game.Genre, &game.Publisher, &game.NASale, &game.EUSale, &game.JPSale, &game.OtherSale, &game.GlobalSale)
+		if err != nil {
+			return nil, err
 		}
-		games=append(games,game)
+		games = append(games, game)
 	}
-	return games,err
+	return games, err
 }
 
-
-func GetGamesByName(ctx context.Context,name string)([]models.Games,error){
+func GetGamesByName(ctx context.Context, name string) ([]models.Games, error) {
 	var err error
 	q := `
 		SELECT
@@ -348,25 +345,24 @@ func GetGamesByName(ctx context.Context,name string)([]models.Games,error){
 		WHERE name like $1
 		ORDER BY rank
 	`
-	rows, err := Query(ctx,q,"%"+name+"%")
+	rows, err := Query(ctx, q, "%"+name+"%")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	games:=make([]models.Games,0)
-	for; rows.Next();{
+	games := make([]models.Games, 0)
+	for rows.Next() {
 		var game models.Games
-		err=rows.Scan(&game.Rank,&game.Name,&game.Platform,&game.Year,&game.Genre,&game.Publisher,&game.NASale,&game.EUSale,&game.JPSale,&game.OtherSale,&game.GlobalSale)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&game.Rank, &game.Name, &game.Platform, &game.Year, &game.Genre, &game.Publisher, &game.NASale, &game.EUSale, &game.JPSale, &game.OtherSale, &game.GlobalSale)
+		if err != nil {
+			return nil, err
 		}
-		games=append(games,game)
+		games = append(games, game)
 	}
-	return games,err
+	return games, err
 }
 
-
-func GetTopSellForYearByPlatform(ctx context.Context,platform string,year int)([]models.Games,error){
+func GetTopSellForYearByPlatform(ctx context.Context, platform string, year int) ([]models.Games, error) {
 	var err error
 	q := `
 		SELECT
@@ -386,25 +382,24 @@ func GetTopSellForYearByPlatform(ctx context.Context,platform string,year int)([
 		ORDER BY rank
 		LIMIT 5
 	`
-	rows, err := Query(ctx,q,platform,year)
+	rows, err := Query(ctx, q, platform, year)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	games:=make([]models.Games,0)
-	for; rows.Next();{
+	games := make([]models.Games, 0)
+	for rows.Next() {
 		var game models.Games
-		err=rows.Scan(&game.Rank,&game.Name,&game.Platform,&game.Year,&game.Genre,&game.Publisher,&game.NASale,&game.EUSale,&game.JPSale,&game.OtherSale,&game.GlobalSale)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&game.Rank, &game.Name, &game.Platform, &game.Year, &game.Genre, &game.Publisher, &game.NASale, &game.EUSale, &game.JPSale, &game.OtherSale, &game.GlobalSale)
+		if err != nil {
+			return nil, err
 		}
-		games=append(games,game)
+		games = append(games, game)
 	}
-	return games,err
+	return games, err
 }
 
-
-func GetTotalSellByGenre(ctx context.Context,start int, end int)(map[string]float64,error){
+func GetTotalSellByGenre(ctx context.Context, start int, end int) (map[string]float64, error) {
 	var err error
 	q := `
 		SELECT
@@ -415,26 +410,25 @@ func GetTotalSellByGenre(ctx context.Context,start int, end int)(map[string]floa
 		GROUP BY genre
 		LIMIT 5
 	`
-	rows, err := Query(ctx,q,start,end)
+	rows, err := Query(ctx, q, start, end)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	res:=make(map[string]float64)
-	for; rows.Next();{
+	res := make(map[string]float64)
+	for rows.Next() {
 		var genre string
 		var totalSell float64
-		err=rows.Scan(&genre,&totalSell)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&genre, &totalSell)
+		if err != nil {
+			return nil, err
 		}
-		res[genre]=totalSell
+		res[genre] = totalSell
 	}
-	return res,err
+	return res, err
 }
 
-
-func GetTotalSellByPublisher(ctx context.Context,start int, end int,publisher string)(map[int]float64,error){
+func GetTotalSellByPublisher(ctx context.Context, start int, end int, publisher string) (map[int]float64, error) {
 	var err error
 	q := `
 		SELECT
@@ -444,26 +438,25 @@ func GetTotalSellByPublisher(ctx context.Context,start int, end int,publisher st
 		WHERE  year>=$1 AND year<=$2 AND publisher=$3
 		GROUP BY year
 	`
-	rows, err := Query(ctx,q,start,end,publisher)
+	rows, err := Query(ctx, q, start, end, publisher)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	res:=make(map[int]float64)
-	for; rows.Next();{
+	res := make(map[int]float64)
+	for rows.Next() {
 		var year int
 		var totalSell float64
-		err=rows.Scan(&year,&totalSell)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&year, &totalSell)
+		if err != nil {
+			return nil, err
 		}
-		res[year]=totalSell
+		res[year] = totalSell
 	}
-	return res,err
+	return res, err
 }
 
-
-func GetTotalSellByYear(ctx context.Context,start int, end int)(map[int]float64,error){
+func GetTotalSellByYear(ctx context.Context, start int, end int) (map[int]float64, error) {
 	var err error
 	q := `
 		SELECT
@@ -473,25 +466,25 @@ func GetTotalSellByYear(ctx context.Context,start int, end int)(map[int]float64,
 		WHERE  year>=$1 AND year<=$2
 		GROUP BY year
 	`
-	rows, err := Query(ctx,q,start,end)
+	rows, err := Query(ctx, q, start, end)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	res:=make(map[int]float64)
-	for; rows.Next();{
+	res := make(map[int]float64)
+	for rows.Next() {
 		var year int
 		var totalSell float64
-		err=rows.Scan(&year,&totalSell)
-		if err!=nil{
-			return nil,err
+		err = rows.Scan(&year, &totalSell)
+		if err != nil {
+			return nil, err
 		}
-		res[year]=totalSell
+		res[year] = totalSell
 	}
-	return res,err
+	return res, err
 }
 
-func GetTotalSellByName(ctx context.Context,name string)(float64,float64,float64,float64,float64,error){
+func GetTotalSellByName(ctx context.Context, name string) (float64, float64, float64, float64, float64, error) {
 	var err error
 	q := `
 		SELECT
@@ -504,17 +497,17 @@ func GetTotalSellByName(ctx context.Context,name string)(float64,float64,float64
 		WHERE  name=$1
 		GROUP BY name
 	`
-	rows, err := Query(ctx,q,name)
+	rows, err := Query(ctx, q, name)
 	if err != nil {
-		return 0,0,0,0,0, err
+		return 0, 0, 0, 0, 0, err
 	}
 	defer rows.Close()
-	var naSell,euSell,jpSell,otherSell,globalSell float64
-	if rows.Next(){
-		err=rows.Scan(&naSell,&euSell,&jpSell,&otherSell,&globalSell)
-		if err!=nil{
-			return 0,0,0,0,0, err
+	var naSell, euSell, jpSell, otherSell, globalSell float64
+	if rows.Next() {
+		err = rows.Scan(&naSell, &euSell, &jpSell, &otherSell, &globalSell)
+		if err != nil {
+			return 0, 0, 0, 0, 0, err
 		}
 	}
-	return naSell,euSell,jpSell,otherSell,globalSell,err
+	return naSell, euSell, jpSell, otherSell, globalSell, err
 }

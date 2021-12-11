@@ -49,8 +49,8 @@ func NewClient(cfg config.PgConfig) (*Client, error) {
 	if err := cli.Migrate(cfg); err != nil {
 		return nil, errors.Wrap(err, "failed to run migrations")
 	}
-	initGames(cfg.JsonDir)
-	return cli, nil
+	er := initGames(cfg.JsonDir)
+	return cli, er
 }
 
 func createDB(host string, port int, ssl, username, password, name string) error {

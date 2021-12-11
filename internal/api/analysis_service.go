@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"github.com/rs/zerolog/log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -54,7 +55,10 @@ func GetTotalSellofGenre(w http.ResponseWriter, r *http.Request, params httprout
 			return
 		}
 		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte(html))
+		_, er := w.Write([]byte(html))
+		if er != nil {
+			log.Error().Err(er)
+		}
 		return
 	} else {
 		respError(w, errors.ErrInvalidParams(nil))
@@ -79,7 +83,10 @@ func drawSellByGenre(vals map[string]float64, title, subtitle string) (string, e
 	f, _ := os.Create(name)
 	_ = f
 	buf := bytes.NewBufferString("")
-	bar.Render(buf)
+	er := bar.Render(buf)
+	if er != nil {
+		log.Error().Err(er)
+	}
 	return buf.String(), nil
 }
 
@@ -100,7 +107,10 @@ func drawSellByYear(vals map[int]float64, title, subtitle string) (string, error
 	f, _ := os.Create(name)
 	_ = f
 	buf := bytes.NewBufferString("")
-	bar.Render(buf)
+	er := bar.Render(buf)
+	if er != nil {
+		log.Error().Err(er)
+	}
 	return buf.String(), nil
 }
 
@@ -125,7 +135,10 @@ func drawSellByPublisher(vals1 map[int]float64, vals2 map[int]float64, publisher
 	f, _ := os.Create(name)
 	_ = f
 	buf := bytes.NewBufferString("")
-	bar.Render(buf)
+	er := bar.Render(buf)
+	if er != nil {
+		log.Error().Err(er)
+	}
 	return buf.String(), nil
 }
 
@@ -160,7 +173,10 @@ func drawSellByName(vals1 sell, vals2 sell, name1, name2, title, subtitle string
 	f, _ := os.Create(name)
 	_ = f
 	buf := bytes.NewBufferString("")
-	bar.Render(buf)
+	er := bar.Render(buf)
+	if er != nil {
+		log.Error().Err(er)
+	}
 	return buf.String(), nil
 }
 
@@ -239,7 +255,10 @@ func GetTotalSellByPublishere(w http.ResponseWriter, r *http.Request, params htt
 			return
 		}
 		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte(html))
+		_, er := w.Write([]byte(html))
+		if er != nil {
+			log.Error().Err(er)
+		}
 		return
 	} else {
 		respError(w, errors.ErrInvalidParams(nil))
@@ -285,7 +304,10 @@ func GetTotalSellByYear(w http.ResponseWriter, r *http.Request, params httproute
 			return
 		}
 		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte(html))
+		_, er := w.Write([]byte(html))
+		if er != nil {
+			log.Error().Err(er)
+		}
 		return
 	} else {
 		respError(w, errors.ErrInvalidParams(nil))
@@ -363,8 +385,10 @@ func GetTotalSellByName(w http.ResponseWriter, r *http.Request, params httproute
 			return
 		}
 		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte(html))
-		return
+		_, er := w.Write([]byte(html))
+		if er != nil {
+			log.Error().Err(er)
+		}
 		return
 	} else {
 		respError(w, errors.ErrInvalidParams(nil))
