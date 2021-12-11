@@ -17,6 +17,8 @@ FROM busybox
 
 RUN mkdir -p openapi/generated
 COPY --from=build /tmp/cloud-api/openapi/generated/doc.html ./openapi/generated/doc.html
+COPY --from=build /tmp/cloud-api/lvldb/. /lvldb/.
+COPY --from=build /tmp/cloud-api/db/. /db/.
 COPY --from=build /tmp/cloud-api/cloud-api .
 COPY config/config.json .
 

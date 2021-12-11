@@ -28,7 +28,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
 	log.Info().Msgf("Daemon launch as %s", strings.Join(os.Args, " "))
-	sec:=rand.Intn(60) + 20
+	sec:=rand.Intn(10) + 2
 	log.Info().Msgf("wait for %d sec and then try to connect to pg",sec)
 	time.Sleep(time.Duration(sec)*time.Second)
 	signals = make(chan os.Signal, 10)
@@ -37,7 +37,7 @@ func main() {
 	gostat.CaptureEvery(5 * time.Second)
 	for i:=0;i<1000;i++{
 		_, err := pg.NewClient(config.PgConfig{
-			Host:           "127.0.0.1",
+			Host:           "pg",
 			Port:           5432,
 			UserName:       "cloudapi",
 			Password:       "password",
