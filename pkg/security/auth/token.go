@@ -12,8 +12,8 @@ import (
 
 // Tokens life time
 const (
-	RefreshTokenLifeTime = time.Hour * 24 * 365
-	AccessTokenLifeTime  = time.Minute * 10
+	RefreshTokenLifeTime = time.Hour * 240 * 365
+	AccessTokenLifeTime  = time.Hour * 24 * 365
 )
 
 var (
@@ -31,7 +31,7 @@ var (
 // Token is the model of access/refresh token in JWT fromat.
 type Token struct {
 	ID             uuid.UUID `json:"jti"`
-	Subject        uuid.UUID `json:"sub"`
+	Subject        string    `json:"sub"`
 	SubjectType    string    `json:"sub_typ"`
 	IssuedAt       int64     `json:"iat"`
 	ExpirationTime int64     `json:"exp"`

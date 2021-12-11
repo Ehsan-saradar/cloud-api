@@ -2,12 +2,14 @@ package config
 
 import "time"
 
-type Duration time.Duration
-type Config struct {
-	PgConfig PgConfig `json:"pg_config"`
-	ListenPort int `json:"listen_port"`
-	ShutdownTimeout   Duration `json:"shutdown_timeout" split_words:"true"`
-}
+type (
+	Duration time.Duration
+	Config   struct {
+		PgConfig        PgConfig `json:"pg_config"`
+		ListenPort      int      `json:"listen_port"`
+		ShutdownTimeout Duration `json:"shutdown_timeout" split_words:"true"`
+	}
+)
 
 type PgConfig struct {
 	Host           string `json:"host"`
@@ -19,8 +21,9 @@ type PgConfig struct {
 	MaxOpenConns   int    `json:"max_open_conns"`
 	MigrationsDir  string `json:"migrations_dir"`
 	MigrateVersion int    `json:"version"`
-	JsonDir         string `json:"json_dir"`
+	JsonDir        string `json:"json_dir"`
 }
+
 func (d Duration) WithDefault(def time.Duration) time.Duration {
 	if d == 0 {
 		return def

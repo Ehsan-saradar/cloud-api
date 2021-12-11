@@ -1,11 +1,12 @@
 package api
 
 import (
-	"api.cloud.io/openapi/generated/oapigen"
 	"net/http"
 	"os"
 	"regexp"
 	"time"
+
+	"api.cloud.io/openapi/generated/oapigen"
 
 	"api.cloud.io/internal/util/timer"
 	"github.com/julienschmidt/httprouter"
@@ -18,15 +19,16 @@ import (
 // Handler serves the entire API.
 var Handler http.Handler
 
-func addMeasured(router *httprouter.Router,method, url string, handler httprouter.Handle) {
+func addMeasured(router *httprouter.Router, method, url string, handler httprouter.Handle) {
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
 	reg, err := regexp.Compile("[^a-zA-Z0-9]+")
 	if err != nil {
 		panic("Bad constant url regex.")
 	}
 	simplifiedURL := reg.ReplaceAllString(url, "_")
-	if url!="/v1/polls/:id/votes" || method!=http.MethodPost{
-		router.Handle(http.MethodOptions,url,optionHandler)
-	}else {
+	if url != "/v1/polls/:id/votes" || method != http.MethodPost {
+		router.Handle(http.MethodOptions, url, optionHandler)
+	} else {
 		simplifiedURL = simplifiedURL + "1"
 	}
 	t := timer.NewTimer("serving" + simplifiedURL)
@@ -44,34 +46,30 @@ func InitHandler() {
 	router.HandleOPTIONS = true
 	Handler = loggerHandler(corsHandler(router))
 
-
 	router.HandlerFunc(http.MethodGet, "/v1/debug/metrics", metrics.ServeHTTP)
 	router.HandlerFunc(http.MethodGet, "/v1/debug/timers", timer.ServeHTTP)
 	router.HandlerFunc(http.MethodGet, "/v1/doc", serveDoc)
-	router.HandlerFunc(http.MethodGet,"/v1/doc/swagger",serveSwagger)
-	addMeasured(router,http.MethodGet, "/v1/game/top/rank", GetTopGamesByRank)
-	addMeasured(router,http.MethodGet, "/v1/game/top/platform", GetTopGamesByPlatform)
-	addMeasured(router,http.MethodGet, "/v1/game/top/year", GetTopGamesByYear)
-	addMeasured(router,http.MethodGet, "/v1/game/top/genre", GetTopGamesByGenre)
-	addMeasured(router,http.MethodGet, "/v1/game/search", GetGameByName)
-	addMeasured(router,http.MethodGet, "/v1/game/top/sell", GetTopSellForYearByPlatform)
-	addMeasured(router,http.MethodGet, "/v1/game/search/sell", GetTopGamesBySell)
-	addMeasured(router,http.MethodGet, "/v1/games/sell/genre", GetTotalSellofGenre)
-	addMeasured(router,http.MethodGet, "/v1/games/sell/publisher", GetTotalSellByPublishere)
-	addMeasured(router,http.MethodGet, "/v1/games/sell/year", GetTotalSellByYear)
-	addMeasured(router,http.MethodGet, "/v1/games/sell/name", GetTotalSellByName)
-	addMeasured(router,http.MethodGet, "/v1/user/register", RegisterUser)
-
+	router.HandlerFunc(http.MethodGet, "/v1/doc/swagger", serveSwagger)
+	addMeasured(router, http.MethodGet, "/v1/game/top/rank", GetTopGamesByRank)
+	addMeasured(router, http.MethodGet, "/v1/game/top/platform", GetTopGamesByPlatform)
+	addMeasured(router, http.MethodGet, "/v1/game/top/year", GetTopGamesByYear)
+	addMeasured(router, http.MethodGet, "/v1/game/top/genre", GetTopGamesByGenre)
+	addMeasured(router, http.MethodGet, "/v1/game/search", GetGameByName)
+	addMeasured(router, http.MethodGet, "/v1/game/top/sell", GetTopSellForYearByPlatform)
+	addMeasured(router, http.MethodGet, "/v1/game/search/sell", GetTopGamesBySell)
+	addMeasured(router, http.MethodGet, "/v1/games/sell/genre", GetTotalSellofGenre)
+	addMeasured(router, http.MethodGet, "/v1/games/sell/publisher", GetTotalSellByPublishere)
+	addMeasured(router, http.MethodGet, "/v1/games/sell/year", GetTotalSellByYear)
+	addMeasured(router, http.MethodGet, "/v1/games/sell/name", GetTotalSellByName)
+	addMeasured(router, http.MethodGet, "/v1/user/register", RegisterUser)
 
 	router.PanicHandler = panicHandler
-
-
 }
 
-func optionHandler(w http.ResponseWriter, _ *http.Request, _ httprouter.Params){
+func optionHandler(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html; charset=ascii")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers","Content-Type,access-control-allow-origin, access-control-allow-headers")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,access-control-allow-origin, access-control-allow-headers")
 }
 
 func loggerHandler(h http.Handler) http.Handler {
@@ -109,12 +107,12 @@ func serveDoc(w http.ResponseWriter, r *http.Request) {
 }
 
 func serveSwagger(w http.ResponseWriter, r *http.Request) {
-	sw,err:=oapigen.GetSwagger()
-	if err!=nil{
+	sw, err := oapigen.GetSwagger()
+	if err != nil {
 		return
 	}
-	bt,err:=sw.MarshalJSON()
-	if err!=nil{
+	bt, err := sw.MarshalJSON()
+	if err != nil {
 		return
 	}
 	w.Write(bt)

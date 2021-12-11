@@ -1,23 +1,26 @@
 package main
 
 import (
-	"api.cloud.io/config"
-	"api.cloud.io/internal/api"
-	"api.cloud.io/internal/db/pg"
-	"api.cloud.io/internal/util/jobs"
 	"context"
 	"fmt"
-	"github.com/pascaldekloe/metrics/gostat"
-	"github.com/rs/cors"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
+
+	"api.cloud.io/config"
+	"api.cloud.io/internal/api"
+	"api.cloud.io/internal/db/pg"
+	"api.cloud.io/internal/util/jobs"
+
+	"github.com/pascaldekloe/metrics/gostat"
+	"github.com/rs/cors"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
+
 var signals chan os.Signal
 
 func main() {
@@ -37,10 +40,10 @@ func main() {
 		MaxOpenConns:   10,
 		MigrationsDir:  "file://./db/migration/",
 		MigrateVersion: 1,
-		JsonDir: "./json/",
+		JsonDir:        "./json/",
 	})
 	if err != nil {
-		log.Fatal().Str("Failed to start pg:",err.Error())
+		log.Fatal().Str("Failed to start pg:", err.Error())
 		return
 	}
 	var c config.Config
@@ -57,6 +60,7 @@ func main() {
 	)
 	log.Fatal().Msgf("Exit on signal %s", signal)
 }
+
 func startHTTPServer(ctx context.Context, c *config.Config) *jobs.Job {
 	if c.ListenPort == 0 {
 		c.ListenPort = 8080
@@ -83,7 +87,4 @@ func startHTTPServer(ctx context.Context, c *config.Config) *jobs.Job {
 		}
 	})
 	return &ret
-
 }
-
-
