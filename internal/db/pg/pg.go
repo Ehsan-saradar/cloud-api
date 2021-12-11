@@ -16,8 +16,12 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
-var Query func(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
-var TheDB *sqlx.DB
+
+var (
+	Query func(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+	TheDB *sqlx.DB
+)
+
 type Client struct {
 	db            *sqlx.DB
 	logger        zerolog.Logger
@@ -26,7 +30,7 @@ type Client struct {
 
 func NewClient(cfg config.PgConfig) (*Client, error) {
 	err := createDB(cfg.Host, cfg.Port, cfg.Sslmode, cfg.UserName, cfg.Password, cfg.Database)
-	if err!=nil{
+	if err != nil {
 		return nil, errors.Wrapf(err, "could not create database %s", cfg.Database)
 	}
 	logger := log.With().Str("module", "pg").Logger()
@@ -87,7 +91,7 @@ func (s *Client) Migrate(cfg config.PgConfig) error {
 	connStr := fmt.Sprintf("postgres://%s:%s@%v:%v/%s?sslmode=%v", cfg.UserName, cfg.Password, cfg.Host, cfg.Port, cfg.Database, cfg.Sslmode)
 	pgMigrate, err := migrate.New(cfg.MigrationsDir, connStr)
 	// pgMigrate, err := migrate.New(cfg.MigrationsDir, connStr)
-	if err != nil  {
+	if err != nil {
 		return err
 	}
 
